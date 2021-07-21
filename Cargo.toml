@@ -1,0 +1,17 @@
+[package]
+name = "dev-tools"
+version = "0.1.0"
+edition = "2018"
+
+[dependencies]
+uuid = { version = "0.8", features = ["v4"] }
+#serde_json = { version = "1.0.64", features = ["raw_value"]}
+
+[dependencies.rocket]
+version = "0.5.0-rc.1"
+features = ["json"]
+
+# [dependencies.rocket_contrib]
+# version = "0.4.10"
+# default-features = false
+# features = ["serve"]
