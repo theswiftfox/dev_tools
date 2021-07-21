@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<head>
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <script type="text/javascript">
+        function getUuid() {
+            var http = new XMLHttpRequest();
+            http.open('GET', '/fn/uuid');
+            http.send();
+            http.onreadystatechange = function () {
+                if (http.readyState == 4 && this.status == 200) {
+                    document.getElementById('uuidField').innerHTML = http.responseText
+                }
+            }
+        }
+        function formatJson() {
+            let box = document.getElementById('jsonBox');
+            var json = JSON.parse(box.value)
+            box.value = JSON.stringify(json, null, 4);
+        }
+    </script>
+</head>
+<body>
+    <div class="w3-panel w3-gray">
+        <h1>Dev Utils</h1>
+    </div>
+    <div class="w3-container">
+    <div class="w3-panel w3-card-2 w3-margin-bottom" style="width:92%;max-width: 400px;">
+        <h3>UUID</h3>
+        <textarea readonly id="uuidField" cols=35 rows=1 style="resize: none"
+            class="w3-container w3-border-top w3-border-bottom w3-border-green"></textarea><br>
+        <button class="w3-btn w3-ripple w3-teal w3-round" onclick="getUuid()">Generate</button>
+        <p />
+    </div>
+    <div class="w3-panel w3-card-2 w3-margin-bottom" style="width:92%;max-width: 800px;">
+        <h3>JSON</h3>
+        <textarea id="jsonBox" cols=80 rows=10 style="resize: vertical"></textarea><br>
+        <button class="w3-btn w3-ripple w3-teal w3-round" onclick="formatJson()">Format</button><br>
+        <p />
+    </div>
+</div>
+</body>
