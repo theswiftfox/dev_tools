@@ -4,14 +4,22 @@ version = "0.1.0"
 edition = "2018"
 
 [dependencies]
+chrono = "*"
+diesel = { version = "1.4.4", features = ["r2d2", "sqlite"] }
+bcrypt = "0.10.1"
+jsonwebtoken = "7.2.0"
+serde = { version = "1.0", features = ["derive"] }
 uuid = { version = "0.8", features = ["v4"] }
-#serde_json = { version = "1.0.64", features = ["raw_value"]}
 
 [dependencies.rocket]
 version = "0.5.0-rc.1"
-features = ["json"]
+features = ["json", "secrets"]
 
-# [dependencies.rocket_contrib]
-# version = "0.4.10"
-# default-features = false
-# features = ["serve"]
+[dependencies.rocket_dyn_templates]
+version = "0.1.0-rc.1"
+features = ["handlebars"]
+
+[dependencies.rocket_sync_db_pools]
+version = "0.1.0-dev"
+default-features = false
+features = ["diesel_sqlite_pool"]
