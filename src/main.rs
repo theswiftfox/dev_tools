@@ -13,9 +13,10 @@ use crate::users::{Credentials, User};
 
 use rocket::fs::FileServer;
 use rocket::http::Status;
-// use rocket::response::Redirect;
 use rocket::serde::json::{Json, Value};
-// use rocket::Request;
+use rocket_dyn_templates::handlebars::{
+    Context, Handlebars, Helper, HelperResult, Output, RenderContext,
+};
 use rocket_dyn_templates::Template;
 use rocket_sync_db_pools::database;
 
@@ -50,6 +51,26 @@ async fn login(user: Json<Credentials>, conn: DbConn) -> Result<Json<Value>, Sta
         .await
 }
 
+#[get("/note/<id>")]
+async fn get_note(id: i32, user: Bearer, conn: DbConn) -> Result<Template, Status> {
+    let note = conn
+        .run(move |c| notes::get_note(id, &user, c))
+        .await
+        .map_err(|_| Status::InternalServerError)?;
+    Ok(Template::render("notes", vec![note]))
+}
+
+#[delete("/note/<id>")]
+async fn delete_note(id: i32, user: Bearer, conn: DbConn) -> Result<Status, Status> {
+    conn.run(move |c| notes::delete_note(id, &user, c))
+        .await
+        .map_err(|e| match e {
+            DbErr::Forbidden => Status::Forbidden,
+            _ => Status::InternalServerError,
+        })?;
+    Ok(Status::Ok)
+}
+
 // #[catch(401)]
 // fn login_form(_req: &Request) -> Redirect {
 //     Redirect::to("/login.html".to_owned())
@@ -70,13 +91,42 @@ async fn create_note(
         })
 }
 
-#[post("/notes", format = "application/json", data = "<notes>")]
+#[post("/note", rank = 2)]
+async fn create_empty_note(user: Bearer, conn: DbConn) -> Result<Template, Status> {
+    conn.run(move |c| {
+        notes::create(
+            NoteForInsert {
+                title: None,
+                creator: "".to_owned(),
+                content: "".to_owned(),
+            },
+            &user,
+            c,
+        )
+    })
+    .await
+    .map(|n| Template::render("notes", vec![n]))
+    .map_err(|e| {
+        println!("{}", e);
+        Status::InternalServerError
+    })
+}
+
+#[put("/notes", format = "application/json", data = "<notes>")]
 async fn create_note_bulk(
     user: Bearer,
     notes: Json<NotesList>,
     conn: DbConn,
 ) -> Result<Status, Status> {
     conn.run(move |c| notes::update_bulk(notes.into_inner().notes, &user, c))
+        .await
+        .map_err(|_| Status::InternalServerError)?;
+    Ok(Status::Ok)
+}
+
+#[put("/note", format = "application/json", data = "<note>")]
+async fn update_note(user: Bearer, note: Json<Note>, conn: DbConn) -> Result<Status, Status> {
+    conn.run(move |c| notes::update(note.into_inner(), &user, c))
         .await
         .map_err(|_| Status::InternalServerError)?;
     Ok(Status::Ok)
@@ -92,6 +142,22 @@ async fn get_notes(user: Bearer, conn: DbConn) -> Result<Template, Status> {
     Ok(Template::render("notes", &notes))
 }
 
+fn breakline_helper(
+    h: &Helper,
+    _: &Handlebars,
+    _: &Context,
+    _: &mut RenderContext,
+    out: &mut dyn Output,
+) -> HelperResult {
+    if let Some(text) = h.param(0) {
+        let text_js = text.value();
+        let string = text_js.to_string().replace("\"", "").replace("\\n", "<br>");
+        out.write(&string)?;
+    }
+
+    Ok(())
+}
+
 #[launch]
 fn rocket() -> _ {
     rocket::build()
@@ -102,12 +168,21 @@ fn rocket() -> _ {
                 login,
                 register,
                 create_note,
+                create_empty_note,
+                create_note_bulk,
                 get_notes,
-                create_note_bulk
+                delete_note,
+                get_note,
+                update_note
             ],
         )
         .mount("/", FileServer::from("static"))
         // .register("/", catchers![login_form])
         .attach(DbConn::fairing())
-        .attach(Template::fairing())
+        // .attach(Template::fairing())
+        .attach(Template::custom(|engines| {
+            engines
+                .handlebars
+                .register_helper("breaklines", Box::new(breakline_helper));
+        }))
 }

@@ -10,6 +10,7 @@ use serde::{Deserialize, Serialize};
 pub enum DbErr {
     Forbidden,
     UpdateError,
+    DeleteError,
 }
 
 #[derive(Serialize, Deserialize, Queryable, AsChangeset, Clone)]
@@ -29,9 +30,9 @@ pub struct NotesList {
 #[derive(Debug, Serialize, Deserialize, Insertable)]
 #[table_name = "notes"]
 pub struct NoteForInsert {
-    title: Option<String>,
-    creator: String,
-    content: String,
+    pub title: Option<String>,
+    pub creator: String,
+    pub content: String,
 }
 
 pub fn create(note: NoteForInsert, user: &Bearer, conn: &SqliteConnection) -> QueryResult<Note> {
@@ -75,4 +76,27 @@ pub fn get_notes(user: &Bearer, conn: &SqliteConnection) -> QueryResult<Vec<Note
     notes::table.filter(notes::creator.eq(&user.0)).load(conn)
 }
 
-pub fn delete_note(note: Note, user: &Bearer, conn: &SqliteConnection) {}
+pub fn get_note(note_id: i32, user: &Bearer, conn: &SqliteConnection) -> QueryResult<Vec<Note>> {
+    notes::table
+        .filter(notes::creator.eq(&user.0))
+        .filter(notes::id.eq(note_id))
+        .load(conn)
+}
+
+pub fn delete_note(note_id: i32, user: &Bearer, conn: &SqliteConnection) -> Result<(), DbErr> {
+    match notes::table
+        .filter(notes::creator.eq(&user.0))
+        .find(note_id)
+        .first::<Note>(conn)
+    {
+        Ok(_) => (),
+        Err(_) => return Err(DbErr::Forbidden),
+    };
+    match diesel::delete(notes::table.find(note_id)).execute(conn) {
+        Ok(_) => Ok(()),
+        Err(e) => {
+            println!("delete error: {}", e);
+            Err(DbErr::DeleteError)
+        }
+    }
+}

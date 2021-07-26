@@ -23,3 +23,7 @@ features = ["handlebars"]
 version = "0.1.0-dev"
 default-features = false
 features = ["diesel_sqlite_pool"]
+
+[dependencies.rusqlite]
+version = "0.25.1"
+features = ["bundled"]
