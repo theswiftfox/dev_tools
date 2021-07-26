@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 
 const BEARER: &str = "Bearer ";
 const JWT_SECRET: &[u8] = b"secret";
-const EXP_TIME: i64 = 600;
+const EXP_TIME: i64 = 60 * 60 * 24; // 1 day
 
 pub static REGISTER_KEY: &str = "0dce349d-0490-4fef-ba0f-f327ee29bc0e";
 
