@@ -151,7 +151,10 @@ fn breakline_helper(
 ) -> HelperResult {
     if let Some(text) = h.param(0) {
         let text_js = text.value();
-        let string = text_js.to_string().replace("\"", "").replace("\\n", "<br>");
+        let orig = text_js.to_string();
+        let string = orig[1..orig.len() - 1]
+            .replace("\\\"", "\"")
+            .replace("\\n", "<br>");
         out.write(&string)?;
     }
 
