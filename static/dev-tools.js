@@ -11,6 +11,29 @@ window.onclick = function (event) {
     }
 }
 
+function init() {
+    let tok = localStorage.getItem('token');
+    if (tok != null) {
+        loadNotes();
+    } else {
+        w3.show('#loginBtn');
+        w3.hide('#logoutBtn');
+        w3.hide('#notesHeader');
+    }
+    if (window.innerWidth < 915) {
+        w3.toggleShow('#json-content');
+        w3.toggleShow('#uuid-content');
+    }
+}
+
+function copyToClipboard(id) {
+    let text = document.getElementById(id).value;
+    if (text != null && text != '') {
+        navigator.clipboard.writeText(text)
+            .catch(err => console.log('Error on copy: ' + err));
+    }
+}
+
 function showLoginForm(show) {
     let loginForm = document.getElementById('login_form');
     if (show) {
@@ -26,7 +49,7 @@ function getUuid() {
     http.send();
     http.onreadystatechange = function () {
         if (http.readyState == 4 && this.status == 200) {
-            document.getElementById('uuidField').innerHTML = http.responseText
+            document.getElementById('uuidField').value = http.responseText
         }
     }
 }
@@ -34,15 +57,6 @@ function formatJson() {
     let box = document.getElementById('jsonBox');
     var json = JSON.parse(box.value)
     box.value = JSON.stringify(json, null, 4);
-}
-
-function toggleVisible(id) {
-    var x = document.getElementById(id);
-    if (x.className.indexOf("w3-show") == -1) {
-        x.className += " w3-show";
-    } else {
-        x.className = x.className.replace(" w3-show", "");
-    }
 }
 
 function login() {
