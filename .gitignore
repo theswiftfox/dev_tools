@@ -1,1 +1,5 @@
 /target
+apikeys.txt
+*.db
+**/secret.key
+Cargo.lock
