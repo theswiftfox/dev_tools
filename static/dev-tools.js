@@ -18,7 +18,7 @@ function init() {
     } else {
         w3.show('#loginBtn');
         w3.hide('#logoutBtn');
-        w3.hide('#notesHeader');
+        w3.hide('#notesCard');
     }
     if (window.innerWidth < 915) {
         w3.toggleShow('#json-content');
@@ -88,7 +88,7 @@ function logout() {
     document.getElementById('notes_container').innerHTML = '';
     w3.show('#loginBtn');
     w3.hide('#logoutBtn');
-    w3.hide('#notesHeader');
+    w3.hide('#notesCard');
 }
 
 function checkToken() {
@@ -96,7 +96,7 @@ function checkToken() {
     if (token == null) {
         w3.show('#loginBtn');
         w3.hide('#logoutBtn');
-        w3.hide('#notesHeader');
+        w3.hide('#notesCard');
         return null;
     } else {
         w3.hide('#loginBtn');
@@ -120,10 +120,10 @@ function loadNotes() {
                 document.getElementById('notes_container').innerHTML = '';
                 w3.show('#loginBtn');
                 w3.hide('#logoutBtn');
-                w3.hide('#notesHeader');
+                w3.hide('#notesCard');
                 return '';
             } else {
-                w3.show('#notesHeader');
+                w3.show('#notesCard');
                 return response.text();
             }
         })
@@ -136,9 +136,8 @@ function saveNotes() {
     let noteHtml = document.getElementsByClassName('note');
     var notes = new Array();
     Array.from(noteHtml).forEach(elem => {
-        let t = elem.childNodes[1].childNodes[1].innerText;
-        let c = elem.childNodes[3].innerText;
-        let note = { id: parseInt(elem.dataset.id), creator: elem.dataset.creator, title: t, content: c }
+        let encoded = getNoteContent(elem);
+        let note = { id: parseInt(elem.dataset.id), creator: elem.dataset.creator, title: encoded.title, content: encoded.content }
         notes.push(note);
     });
 
@@ -183,11 +182,17 @@ function createNote() {
         .catch(e => { console.log('error: ' + e) });
 }
 
+function getNoteContent(note) {
+    let title = note.childNodes[1].childNodes[1].innerText;
+    let content = note.childNodes[3].innerText;
+
+    return { title: title, content: content };
+}
+
 function saveNote(id) {
     let note_elem = document.getElementById('note-' + id);
-    let title = note_elem.childNodes[1].childNodes[1].innerText;
-    let content = note_elem.childNodes[3].innerText;
-    let note = { id: id, title: title, content: content, creator: note_elem.dataset.creator };
+    let encoded = getNoteContent(note_elem);
+    let note = { id: id, title: encoded.title, content: encoded.content, creator: note_elem.dataset.creator };
     fetch('/fn/note', {
         method: 'PUT',
         headers: {
