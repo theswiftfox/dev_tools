@@ -5,10 +5,8 @@ use rocket::request::{FromRequest, Outcome, Request};
 use serde::{Deserialize, Serialize};
 
 const BEARER: &str = "Bearer ";
-const JWT_SECRET: &[u8] = b"secret";
+const JWT_SECRET: &[u8] = include_bytes!("secret.key");
 const EXP_TIME: i64 = 60 * 60 * 24; // 1 day
-
-pub static REGISTER_KEY: &str = "0dce349d-0490-4fef-ba0f-f327ee29bc0e";
 
 #[derive(Debug, Deserialize, Serialize)]
 struct Claims {
@@ -49,21 +47,6 @@ impl<'r> FromRequest<'r> for Bearer {
                 Outcome::Failure((Status::Unauthorized, ()))
             }
         }
-    }
-}
-
-pub struct ApiKey(pub String);
-
-#[rocket::async_trait]
-impl<'r> FromRequest<'r> for ApiKey {
-    type Error = ();
-
-    async fn from_request(request: &'r Request<'_>) -> Outcome<ApiKey, ()> {
-        let keys: Vec<_> = request.headers().get("Authorization").collect();
-        if keys.len() != 1 {
-            return Outcome::Failure((Status::Unauthorized, ()));
-        }
-        Outcome::Success(ApiKey(keys[0].to_string()))
     }
 }
 

@@ -25,7 +25,7 @@
                     </header>
                     <div id="json-content" class="w3-mobile w3-container w3-padding">
                         <textarea class="w3-code" id="jsonBox" rows=10
-                            style="resize: vertical; width:100%; margin-bottom: 0px!important;"></textarea>
+                            style="resize: vertical; width:100%; margin-bottom: 0px!important;font-size: small;"></textarea>
                         <button class="w3-btn w3-ripple" onclick="formatJson()">📃 Format</button>
                         <p></p>
                     </div>
@@ -47,13 +47,12 @@
         </div>
         <div class="w3-mobile w3-third" style="min-width: 300px;">
             <div class="w3-panel">
-                <div class="w3-container w3-card-2 w3-light-grey" style="padding-bottom: 15px;">
-                    <div id="notesHeader" class="w3-row w3-padding w3-display-container w3-border-bottom"
-                        style="margin-bottom: 15px;display: none;">
+                <div id="notesCard" class="w3-container w3-card-2 w3-light-grey" style="padding-bottom: 15px;">
+                    <div class="w3-row w3-padding w3-display-container w3-border-bottom" style="margin-bottom: 15px;">
                         <span class="w3-display-left w3-xxlarge">Notes</span>
-                        <button class="w3-button w3-xlarge w3-green w3-right w3-circle" onclick="saveNotes();"
+                        <button class="w3-button w3-xlarge w3-right w3-ripple" onclick="saveNotes();"
                             title="Save all Notes">✓</button>
-                        <button class="w3-button w3-xlarge w3-teal w3-right w3-circle" style="margin-right: 8px;"
+                        <button class="w3-button w3-xlarge w3-right w3-ripple" style="margin-right: 8px;"
                             onclick="createNote();" title="New Note">+</button>
                     </div>
                     <div id="notes_container"></div>
