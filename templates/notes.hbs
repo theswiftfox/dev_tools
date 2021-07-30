@@ -1,17 +1,18 @@
 {{#each this}}
 <div id="note-{{this.id}}" data-id="{{this.id}}" data-creator="{{this.creator}}"
-    class="note w3-card w3-yellow w3-padding">
-    <div class="w3-bar">
-        <div class="w3-container w3-border-bottom w3-left" style="min-height: 25px; max-width:75%"
-            contenteditable="true">
-            {{this.title}}
-        </div>
-        <button class="w3-button w3-right w3-red w3-tiny" style="margin-left: 10px;"
-            onclick="deleteNote({{this.id}});">X</button>
-        <button class="w3-button w3-right w3-green w3-tiny" onclick="saveNote({{this.id}});">✓</button>
+    class="note w3-card w3-yellow w3-padding w3-display-container">
+    <div class="w3-container w3-border-bottom w3-top-left" style="min-height: 25px; max-width:60%; margin-bottom: 15px;"
+        contenteditable="true">
+        {{this.title}}
     </div>
+
     <div class="w3-container w3-padding" style="min-height: 35px;" contenteditable="true">
         {{ breaklines this.content }}
+    </div>
+    <div class="w3-display-topright" style="margin-top: 3px;">
+        <button class="w3-button w3-red w3-tiny" onclick="deleteNote({{this.id}});">X</button>
+        <button class="w3-button w3-green w3-tiny" onclick="saveNote({{this.id}});"
+            style="margin-right: 3px;">✓</button>
     </div>
 </div>
 <p></p>
