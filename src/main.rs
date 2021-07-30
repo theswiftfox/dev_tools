@@ -9,6 +9,7 @@ mod notes;
 mod routes;
 mod secrets;
 mod users;
+mod errors;
 
 use rocket::fs::FileServer;
 use rocket_dyn_templates::handlebars::{

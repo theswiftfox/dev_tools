@@ -16,6 +16,8 @@ lazy_static! {
 
 pub static REGISTER_KEY: &str = "apikeys.register";
 
+const APIKEY: &str = "ApiKey ";
+
 #[rocket::async_trait]
 impl<'r> FromRequest<'r> for ApiKey {
     type Error = ();
@@ -25,7 +27,11 @@ impl<'r> FromRequest<'r> for ApiKey {
         if keys.len() != 1 {
             return Outcome::Failure((Status::Unauthorized, ()));
         }
-        Outcome::Success(ApiKey(keys[0].to_string()))
+        let apikey = keys[0];
+        if !apikey.starts_with(APIKEY) {
+            return Outcome::Failure((Status::Unauthorized, ()));
+        }
+        Outcome::Success(ApiKey(apikey.trim_start_matches(APIKEY).to_string()))
     }
 }
 
@@ -37,7 +43,11 @@ impl ApiKeys {
                 let as_string = String::from_utf8_lossy(&file_content);
                 for line in as_string.lines() {
                     let pair: Vec<&str> = line.split("=").collect();
-                    keys.insert(pair[0].to_string(), pair[1].to_string());
+                    if pair.len() == 2 && pair[1].len() > 0 {
+                        keys.insert(pair[0].to_string(), pair[1].to_string());
+                    } else {
+                        eprintln!("Skipped apikey [{}] due to missing value", pair[0]);
+                    }
                 }
             }
             Err(e) => {
